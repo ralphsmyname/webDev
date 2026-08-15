@@ -1,0 +1,978 @@
+/* =========================================
+   RESET
+========================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #ffffff;
+    background: #000000;
+}
+
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+
+/* =========================================
+   NAVIGATION BAR
+========================================= */
+
+.topbar {
+
+    height: 72px;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 11.5%;
+
+    position: relative;
+
+    z-index: 10;
+
+   font-family: "Bernard MT Condensed", serif;
+}
+
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-weight: 700;
+
+    font-size: 17px;
+
+    white-space: nowrap;
+}
+
+
+.brand img {
+
+    width: 58px;
+
+    height: 40px;
+
+    object-fit: contain;
+}
+
+
+.brand span {
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-weight: 700;
+}
+
+
+nav {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 28px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+nav a {
+
+    transition: 0.2s;
+}
+
+
+nav a:hover,
+nav .active {
+
+    color: #638f1b;
+}
+
+
+.join-pill {
+
+    background: #66931e;
+
+    color: #ffffff;
+
+    border-radius: 30px;
+
+    padding: 9px 17px;
+
+    box-shadow: 0 2px 6px #777777;
+
+    font-size: 11px;
+}
+
+
+.join-pill span {
+
+    margin-right: 8px;
+}
+
+
+
+/* =========================================
+   WHAT'S NEW
+========================================= */
+
+.new-section {
+
+    height: 445px;
+
+    background: #000000;
+
+    display: grid;
+
+    grid-template-columns: 54% 46%;
+}
+
+
+.new-copy {
+
+    padding:
+        70px
+        0
+        40px
+        13.5%;
+
+    max-width: 600px;
+}
+
+
+.new-copy h1,
+.community-copy h2,
+.merch h2,
+.about-copy h2 {
+    font-family: "Bernard MT Condensed", serif;
+    font-weight: normal;
+}
+
+
+.new-copy h1 {
+
+    font-size: 34px;
+
+    margin-bottom: 18px;
+}
+
+
+.new-copy p {
+
+    font-size: 16px;
+
+    line-height: 1.13;
+
+    max-width: 315px;
+}
+
+
+.new-photo {
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #000000 0%,
+            rgba(0, 0, 0, 0.35) 35%,
+            rgba(0, 0, 0, 0.08) 100%
+        ),
+
+        url("images/hero.png")
+
+        center / cover
+
+        no-repeat;
+}
+
+
+
+/* =========================================
+   COMMUNITY
+========================================= */
+
+.community {
+
+    height: 445px;
+
+    background: #66911e;
+
+    display: grid;
+
+    grid-template-columns: 54% 46%;
+}
+
+
+.community-photo {
+
+    background:
+
+        linear-gradient(
+            90deg,
+            rgba(102, 145, 30, 0.1),
+            rgba(102, 145, 30, 0.55)
+        ),
+
+        url("images/community.png")
+
+        center / cover
+
+        no-repeat;
+}
+
+
+.community-copy {
+
+    padding:
+        60px
+        14%
+        40px
+        8%;
+}
+
+
+.community-copy h2 {
+
+    font-size: 33px;
+
+    margin:
+        0
+        0
+        20px;
+}
+
+
+.community-copy p {
+
+    font-size: 15px;
+
+    line-height: 1.13;
+
+    max-width: 360px;
+}
+
+
+.black-pill,
+.white-pill {
+
+    display: block;
+
+    width: max-content;
+
+    border-radius: 30px;
+
+    font-family:
+        "Roboto Condensed",
+        Arial,
+        sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.black-pill {
+
+    background: #000000;
+
+    padding: 12px 21px;
+
+    margin: 25px auto 0;
+}
+
+
+.black-pill span {
+
+    margin-right: 9px;
+}
+
+
+
+/* =========================================
+   MERCHANDISE
+========================================= */
+
+.merch {
+
+    height: 600px;
+
+    position: relative;
+
+    background:
+
+        url("images/forest.png")
+
+        center / cover
+
+        no-repeat;
+
+    overflow: hidden;
+}
+
+
+.merch-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.34);
+}
+
+
+.merch-inner {
+
+    position: relative;
+
+    z-index: 1;
+
+    text-align: center;
+
+    padding-top: 50px;
+}
+
+
+.merch h2 {
+
+    font-size: 39px;
+
+    margin-bottom: 55px;
+}
+
+
+.products {
+
+    width: 345px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 58px 35px;
+}
+
+
+.product {
+
+    height: 130px;
+
+    background: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    box-shadow:
+        0 4px 8px
+        rgba(0, 0, 0, 0.25);
+}
+
+
+.product img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+}
+
+
+.white-pill {
+
+    background: #ffffff;
+
+    color: #638e1c;
+
+    padding: 12px 22px;
+
+    margin: 30px auto 0;
+
+    box-shadow:
+        0 1px 5px #444444;
+}
+
+
+.white-pill span {
+
+    margin-right: 10px;
+}
+
+
+
+/* =========================================
+   ABOUT US
+========================================= */
+
+.about {
+
+    height: 420px;
+
+    background: #000000;
+
+    display: grid;
+
+    grid-template-columns: 54% 46%;
+}
+
+
+.about-photo {
+
+    background:
+
+        url("images/business-cards.png")
+
+        left center / cover
+
+        no-repeat;
+}
+
+
+.about-copy {
+
+    padding:
+        58px
+        18%
+        30px
+        3%;
+}
+
+
+.about-copy h2 {
+
+    font-size: 32px;
+
+    margin-bottom: 25px;
+}
+
+
+.about-copy p {
+
+    font-size: 15px;
+
+    line-height: 1.1;
+
+    max-width: 360px;
+}
+
+
+.learn {
+
+    display: block;
+
+    width: max-content;
+
+    color: #75a91d;
+
+    margin: 25px auto 0;
+
+    font-family:
+        "Roboto Condensed",
+        Arial,
+        sans-serif;
+
+    font-size: 18px;
+
+    border-bottom:
+        2px solid
+        #75a91d;
+
+    padding-bottom: 2px;
+}
+
+
+.learn span {
+
+    font-size: 28px;
+
+    margin-right: 10px;
+}
+
+
+
+/* =========================================
+   REVIEWS
+========================================= */
+
+.reviews {
+
+    height: 250px;
+
+    background: #000000;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr
+        1fr;
+
+    gap: 42px;
+
+    align-items: center;
+
+    padding: 0 14.5%;
+}
+
+
+.review-form {
+
+    width: 100%;
+
+    font-family: Arial, sans-serif;
+
+    color: #63901c;
+
+    font-size: 11px;
+}
+
+
+.review-form label {
+
+    display: block;
+
+    margin-bottom: 2px;
+}
+
+
+.review-form textarea {
+
+    width: 100%;
+
+    height: 88px;
+
+    border: 0;
+
+    border-radius: 3px;
+
+    resize: none;
+
+    padding: 5px;
+
+    background: #ffffff;
+}
+
+
+
+/* =========================================
+   REVIEW CARD
+========================================= */
+
+.review-card {
+
+    height: 140px;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    border-radius: 4px;
+
+    padding: 14px 15px;
+
+    font-family: Arial, sans-serif;
+}
+
+
+.stars {
+
+    font-size: 13px;
+
+    color: #d5d000;
+
+    background: #ffffff;
+
+    letter-spacing: -1px;
+}
+
+
+.review-card h3 {
+
+    font-size: 16px;
+
+    margin:
+        12px
+        0
+        3px;
+}
+
+
+.review-card p {
+
+    font-size: 11px;
+
+    line-height: 1.25;
+}
+
+
+.reviewer {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 12px;
+
+    font-size: 10px;
+
+    color: #777777;
+}
+
+
+.avatar {
+
+    width: 27px;
+
+    height: 27px;
+
+    border-radius: 50%;
+
+    background:
+
+        url("images/bottle.png")
+
+        center / cover
+
+        no-repeat;
+}
+
+
+.reviewer strong,
+.reviewer small {
+
+    display: block;
+}
+
+
+.reviewer small {
+
+    font-size: 9px;
+
+    margin-top: 2px;
+}
+
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+
+    height: 220px;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    display: grid;
+
+    grid-template-columns:
+        60%
+        40%;
+
+    padding:
+        35px
+        14.5%;
+
+    font-family:
+        Georgia,
+        serif;
+}
+
+
+.footer-logo {
+
+    display: flex;
+
+    align-items: center;
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+.footer-logo img {
+
+    width: 105px;
+
+    height: 55px;
+
+    object-fit: contain;
+
+    margin-right: 8px;
+}
+
+
+.contact-list {
+
+    margin-left: 110px;
+
+    margin-top: 6px;
+
+    color: #111111;
+
+    font-size: 13px;
+
+    line-height: 1.55;
+}
+
+
+.contact-list b {
+
+    display: inline-block;
+
+    width: 18px;
+
+    color: #67931e;
+}
+
+
+.options h3 {
+
+    font-size: 18px;
+
+    margin-bottom: 18px;
+}
+
+
+.options a {
+
+    display: block;
+
+    color: #66911e;
+
+    font-size: 15px;
+
+    line-height: 1.35;
+}
+
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+
+    .topbar {
+
+        padding: 0 5%;
+
+        height: 65px;
+    }
+
+
+    .brand span {
+
+        font-size: 13px;
+    }
+
+
+    nav {
+
+        gap: 12px;
+
+        font-size: 10px;
+    }
+
+
+    .new-section,
+    .community,
+    .about {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .new-section {
+
+        height: auto;
+
+        min-height: 650px;
+    }
+
+
+    .new-copy {
+
+        padding:
+            60px
+            10%
+            35px;
+
+        max-width: none;
+    }
+
+
+    .new-photo {
+
+        height: 300px;
+    }
+
+
+    .community {
+
+        height: auto;
+    }
+
+
+    .community-photo {
+
+        height: 350px;
+    }
+
+
+    .community-copy {
+
+        padding: 50px 10%;
+    }
+
+
+    .merch {
+
+        height: auto;
+
+        min-height: 700px;
+    }
+
+
+    .about {
+
+        height: auto;
+    }
+
+
+    .about-photo {
+
+        height: 300px;
+    }
+
+
+    .about-copy {
+
+        padding:
+            55px
+            10%
+            65px;
+    }
+
+
+    .reviews {
+
+        height: auto;
+
+        grid-template-columns: 1fr;
+
+        padding: 55px 10%;
+
+        gap: 25px;
+    }
+
+
+    footer {
+
+        height: auto;
+
+        grid-template-columns: 1fr;
+
+        padding: 40px 10%;
+
+        gap: 35px;
+    }
+
+
+    .contact-list {
+
+        margin-left: 0;
+    }
+
+
+    .footer-logo {
+
+        font-size: 16px;
+    }
+
+}
+
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+
+    nav a:not(.join-pill) {
+
+        display: none;
+    }
+
+
+    .new-copy h1,
+    .community-copy h2,
+    .about-copy h2 {
+
+        font-size: 28px;
+    }
+
+
+    .merch h2 {
+
+        font-size: 31px;
+    }
+
+
+    .products {
+
+        width: 90%;
+
+        gap: 25px 20px;
+    }
+
+
+    .product {
+
+        height: 125px;
+    }
+
+}
