@@ -1,3 +1,18 @@
+<?php
+$paragraphFiles = [
+    'new' => __DIR__ . '/paragraph/new copy text.txt',
+    'community' => __DIR__ . '/paragraph/community copy text.txt',
+    'about' => __DIR__ . '/paragraph/about copy text.txt',
+];
+
+$paragraphContent = [];
+foreach ($paragraphFiles as $key => $filePath) {
+    $paragraphContent[$key] = file_exists($filePath)
+        ? htmlspecialchars(file_get_contents($filePath), ENT_QUOTES, 'UTF-8')
+        : '';
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,9 +28,7 @@
 <body>
 
 
-    <!-- =========================
-         NAVIGATION
-    ========================== -->
+
 
     <header class="topbar">
 
@@ -60,9 +73,7 @@
     <main id="home">
 
 
-        <!-- =========================
-             WHAT'S NEW
-        ========================== -->
+        
 
         <section class="new-section">
 
@@ -75,14 +86,7 @@
 
 
                 <p>
-                    We’ve added exciting new features to make
-                    your experience even better at our airsoft
-                    zone. You can now rent high-quality airsoft
-                    guns, grab cool souvenirs to remember your
-                    visit, and enjoy more convenience when
-                    playing. Plus, you can officially become
-                    part of our growing community by signing
-                    up as a member.
+                    <?php echo $paragraphContent['new']; ?>
                 </p>
 
             </div>
@@ -95,9 +99,7 @@
 
 
 
-        <!-- =========================
-             JOIN OUR COMMUNITY
-        ========================== -->
+        
 
         <section class="community" id="community">
 
@@ -113,14 +115,7 @@
 
 
                 <p>
-                    Join our community and take your airsoft
-                    experience to the next level. As a member,
-                    you’ll get exclusive access to events,
-                    updates, and special perks while connecting
-                    with fellow players who share the same
-                    passion. Be part of a growing team where
-                    skills, strategy, and camaraderie come
-                    together.
+                    <?php echo $paragraphContent['community']; ?>
                 </p>
 
 
@@ -139,9 +134,7 @@
 
 
 
-        <!-- =========================
-             MERCH
-        ========================== -->
+       
 
         <section class="merch" id="merch">
 
@@ -219,9 +212,7 @@
 
 
 
-        <!-- =========================
-             ABOUT US
-        ========================== -->
+        \
 
         <section class="about" id="about">
 
@@ -238,14 +229,7 @@
 
 
                 <p>
-                    Our airsoft zone is built for players who
-                    are passionate about action, teamwork, and
-                    fun. We provide a safe and exciting
-                    environment where both beginners and
-                    experienced players can enjoy the game.
-                    With quality gear, engaging fields, and a
-                    growing community, we aim to create the
-                    best airsoft experience for everyone.
+                    <?php echo $paragraphContent['about']; ?>
                 </p>
 
 
@@ -265,14 +249,12 @@
 
 
 
-        <!-- =========================
-             REVIEWS
-        ========================== -->
+       
 
         <section class="reviews">
 
 
-            <!-- REVIEW FORM -->
+           
 
             <div class="review-form">
 
@@ -290,7 +272,7 @@
 
 
 
-            <!-- REVIEW 1 -->
+            
 
             <article class="review-card">
 
@@ -384,12 +366,6 @@
 
 
     </main>
-
-
-
-    <!-- =========================
-         FOOTER
-    ========================== -->
 
     <footer id="contact">
 
