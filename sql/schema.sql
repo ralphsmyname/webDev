@@ -71,3 +71,22 @@ CREATE TABLE IF NOT EXISTS admin_users (
 -- in source control is a bad habit). After importing this schema,
 -- visit /admin/setup.php once in your browser to create the first
 -- admin account — that script locks itself once an account exists.
+CREATE TABLE IF NOT EXISTS customers (
+    id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    full_name      VARCHAR(100) NOT NULL,
+    email          VARCHAR(150) NOT NULL,
+    password_hash  VARCHAR(255) NOT NULL,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_customers_email (email)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS merch_orders (
+    id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    customer_id   INT UNSIGNED NOT NULL,
+    product       VARCHAR(50) NOT NULL,
+    quantity      INT UNSIGNED NOT NULL DEFAULT 1,
+    status        ENUM('pending','processing','completed','cancelled') NOT NULL DEFAULT 'pending',
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
