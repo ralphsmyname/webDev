@@ -36,9 +36,8 @@
 
                         <?php paragraph('merch_bottle.txt'); ?>
 
-                        <a class="btn" href="contacts.php">
-                            ORDER
-                        </a>
+                        <a class="btn" href="order.php?product=bottle">ORDER</a>
+                           
                     </article>
 
 
@@ -49,9 +48,7 @@
 
                         <?php paragraph('merch_bag.txt'); ?>
 
-                        <a class="btn" href="contacts.php">
-                            ORDER
-                        </a>
+                       <a class="btn" href="order.php?product=bag">ORDER</a>
                     </article>
 
 
@@ -62,9 +59,7 @@
 
                         <?php paragraph('merch_hoodie.txt'); ?>
 
-                        <a class="btn" href="contacts.php">
-                            ORDER
-                        </a>
+                        <a class="btn" href="order.php?product=hoodie">ORDER</a>
                     </article>
 
 
@@ -75,9 +70,7 @@
 
                         <?php paragraph('merch_balaclava.txt'); ?>
 
-                        <a class="btn" href="contacts.php">
-                            ORDER
-                        </a>
+                       <a class="btn" href="order.php?product=balaclava">ORDER</a>
                     </article>
 
                 </div>

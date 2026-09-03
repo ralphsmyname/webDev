@@ -74,32 +74,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <main>
 <section class="inner-hero"><div class="container"><h1>CREATE AN ACCOUNT</h1></div></section>
-<section class="page-section">
-<div class="container" style="max-width:480px;">
+<section class="account-section">
+<div class="container">
+<div class="account-card">
+    <h2>Sign Up</h2>
+    <p class="subtitle">Create your Hinlo Airsoft Zone account</p>
 
-<?php if (!empty($errors['_general'])): ?>
-<p class="form-note-error"><?= htmlspecialchars($errors['_general'], ENT_QUOTES, 'UTF-8') ?></p>
-<?php endif; ?>
+    <?php if (!empty($errors['_general'])): ?>
+        <p class="form-note-error" style="text-align:center;margin-bottom:16px;"><?= htmlspecialchars($errors['_general'], ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
 
-<form class="contact-box" method="post" action="register.php" novalidate>
-<?= csrf_field() ?>
+    <form method="post" action="register.php" novalidate>
+        <?= csrf_field() ?>
 
-<input type="text" name="full_name" placeholder="Full name" value="<?= htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8') ?>">
-<span class="field-error"><?= htmlspecialchars($errors['full_name'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+        <input type="text" name="full_name" placeholder="Full name" value="<?= htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8') ?>">
+        <span class="field-error"><?= htmlspecialchars($errors['full_name'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
 
-<input type="email" name="email" placeholder="Email address" value="<?= htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8') ?>">
-<span class="field-error"><?= htmlspecialchars($errors['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+        <input type="email" name="email" placeholder="Email address" value="<?= htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8') ?>">
+        <span class="field-error"><?= htmlspecialchars($errors['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
 
-<input type="password" name="password" placeholder="Password">
-<span class="field-error"><?= htmlspecialchars($errors['password'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+        <input type="password" name="password" placeholder="Password">
+        <span class="field-error"><?= htmlspecialchars($errors['password'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
 
-<input type="password" name="confirm" placeholder="Confirm password">
-<span class="field-error"><?= htmlspecialchars($errors['confirm'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+        <input type="password" name="confirm" placeholder="Confirm password">
+        <span class="field-error"><?= htmlspecialchars($errors['confirm'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
 
-<button class="btn" type="submit">Sign Up</button>
-</form>
+        <button class="btn" type="submit">Sign Up</button>
+    </form>
 
-<p>Already have an account? <a href="login.php">Log in</a></p>
+    <p class="account-footer">Already have an account? <a href="login.php">Log in</a></p>
+</div>
 </div>
 </section>
 </main>

@@ -1,0 +1,64 @@
+<?php
+require_once 'includes/csrf.php';
+require_once 'includes/functions.php';
+require_once 'includes/customer_auth.php';
+require_customer_login('account/login.php');
+
+$validProducts = [
+    'bottle'    => 'Water Bottle',
+    'bag'       => 'Tote Bag',
+    'hoodie'    => 'Hoodie',
+    'balaclava' => 'Balaclava',
+];
+
+$product = $_GET['product'] ?? '';
+if (!isset($validProducts[$product])) {
+    die('Unknown product.');
+}
+?>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order <?= htmlspecialchars($validProducts[$product], ENT_QUOTES, 'UTF-8') ?> | Hinlo Airsoft Zone</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<?php include 'partials/header.php'; ?>
+
+<main>
+<section class="inner-hero"><div class="container"><h1>ORDER: <?= strtoupper(htmlspecialchars($validProducts[$product], ENT_QUOTES, 'UTF-8')) ?></h1></div></section>
+<section class="page-section">
+<div class="container" style="max-width:480px;">
+
+<form class="contact-box" data-demo-form data-endpoint="actions/order.php" method="post" action="actions/order.php" novalidate>
+<?= csrf_field() ?>
+<input type="hidden" name="product" value="<?= htmlspecialchars($product, ENT_QUOTES, 'UTF-8') ?>">
+
+<label for="quantity">Quantity</label>
+<input type="number" id="quantity" name="quantity" min="1" max="20" value="1">
+<span class="field-error" data-error-for="quantity"></span>
+
+<label for="location">Delivery / pickup location</label>
+<input type="text" id="location" name="location" maxlength="255" placeholder="e.g. Barangay, city">
+<span class="field-error" data-error-for="location"></span>
+
+<label for="contact_number">Contact number</label>
+<input type="text" id="contact_number" name="contact_number" maxlength="30" placeholder="e.g. 09123456789">
+<span class="field-error" data-error-for="contact_number"></span>
+
+<button class="btn" type="submit">Place order</button>
+<p class="form-note"></p>
+</form>
+
+<p>Logged in as <?= htmlspecialchars($_SESSION['customer_name'], ENT_QUOTES, 'UTF-8') ?> —
+<a href="account/orders.php">view my orders</a> · <a href="account/logout.php">log out</a></p>
+</div>
+</section>
+</main>
+
+<?php include 'partials/footer.php'; ?>
+<script src="js/main.js"></script>
+</body>
+</html>

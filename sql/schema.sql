@@ -90,3 +90,17 @@ CREATE TABLE IF NOT EXISTS merch_orders (
     updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS merch_stock (
+    product        VARCHAR(50) NOT NULL PRIMARY KEY,
+    stock_quantity INT UNSIGNED NOT NULL DEFAULT 1000,
+    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT INTO merch_stock (product, stock_quantity) VALUES
+    ('bottle', 1000),
+    ('bag', 1000),
+    ('hoodie', 1000),
+    ('balaclava', 1000)
+ON DUPLICATE KEY UPDATE product = product;

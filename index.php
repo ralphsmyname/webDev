@@ -14,7 +14,6 @@ require_once 'includes/functions.php';
 </head>
 
 <body>
-
     <?php include 'partials/header.php'; ?>
     <?php include 'partials/text.php'; ?>
 
@@ -200,4 +199,3 @@ require_once 'includes/functions.php';
 </body>
 
 </html>
-

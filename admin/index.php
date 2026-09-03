@@ -9,6 +9,9 @@ $msgCount = (int) $pdo->query('SELECT COUNT(*) FROM contact_messages')->fetchCol
 $msgUnread = (int) $pdo->query('SELECT COUNT(*) FROM contact_messages WHERE is_read = 0')->fetchColumn();
 $reviewCount = (int) $pdo->query('SELECT COUNT(*) FROM reviews')->fetchColumn();
 $reviewPending = (int) $pdo->query('SELECT COUNT(*) FROM reviews WHERE is_published = 0')->fetchColumn();
+$orderCount = (int) $pdo->query('SELECT COUNT(*) FROM merch_orders')->fetchColumn();
+$orderPending = (int) $pdo->query("SELECT COUNT(*) FROM merch_orders WHERE status = 'pending'")->fetchColumn();
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -31,7 +34,11 @@ $reviewPending = (int) $pdo->query('SELECT COUNT(*) FROM reviews WHERE is_publis
                 Registrations
                 <?php if ($regPending): ?><br><small><?= $regPending ?> pending</small><?php endif; ?>
             </a>
-
+           
+            <a class="admin-stat" href="orders.php">
+                <span class="num"><?= $orderCount ?></span>
+                Merch orders
+                <?php if ($orderPending): ?><br><small><?= $orderPending ?> pending</small><?php endif; ?>
             <a class="admin-stat" href="messages.php">
                 <span class="num"><?= $msgCount ?></span>
                 Contact messages
