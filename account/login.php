@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 $basePath = '../';
 
@@ -20,19 +21,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email    = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        $stmt = $pdo->prepare('SELECT id, full_name, password_hash FROM customers WHERE email = :e LIMIT 1');
-        $stmt->execute([':e' => $email]);
-        $customer = $stmt->fetch();
+        $stmt = $pdo->prepare('SELECT id, full_name, email, password_hash, is_verified FROM customers WHERE email = :e LIMIT 1');
+$stmt->execute([':e' => $email]);
+$customer = $stmt->fetch();
 
-        if ($customer && password_verify($password, $customer['password_hash'])) {
-            session_regenerate_id(true);
-            $_SESSION['customer_id']   = $customer['id'];
-            $_SESSION['customer_name'] = $customer['full_name'];
-            header('Location: ' . ($redirect ?: 'orders.php'));
-            exit;
-        }
+if ($customer && password_verify($password, $customer['password_hash'])) {
+    if (!$customer['is_verified']) {
+        $otp = generate_otp();
+        $stmt = $pdo->prepare(
+            'UPDATE customers SET otp_code = :otp, otp_expires_at = DATE_ADD(NOW(), INTERVAL 10 MINUTE) WHERE id = :id'
+        );
+        $stmt->execute([':otp' => $otp, ':id' => $customer['id']]);
+        send_otp_email($customer['email'], $customer['full_name'], $otp);
 
-        $error = 'Invalid email or password.';
+        session_regenerate_id(true);
+        $_SESSION['pending_customer_id'] = $customer['id'];
+
+        header('Location: verify.php');
+        exit;
+    }
+
+    session_regenerate_id(true);
+    $_SESSION['customer_id']   = $customer['id'];
+    $_SESSION['customer_name'] = $customer['full_name'];
+    header('Location: ' . ($redirect ?: 'orders.php'));
+    exit;
+}
+
+$error = 'Invalid email or password.';
     }
 }
 ?>

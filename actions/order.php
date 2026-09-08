@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 if (empty($_SESSION['customer_id'])) {
     json_response(['success' => false, 'message' => 'Please log in to place an order.'], 401);
@@ -15,7 +16,9 @@ if (!verify_csrf($_POST['csrf_token'] ?? null)) {
     json_response(['success' => false, 'message' => 'Your session expired. Please refresh and try again.'], 403);
 }
 
-$validProducts = ['bottle', 'bag', 'hoodie', 'balaclava'];
+$productNames = ['bottle' => 'Water Bottle', 'bag' => 'Tote Bag', 'hoodie' => 'Hoodie', 'balaclava' => 'Balaclava'];
+
+$validProducts = array_keys($productNames);
 $product       = $_POST['product'] ?? '';
 $quantity      = (int) ($_POST['quantity'] ?? 0);
 $location      = sanitize_string($_POST['location'] ?? '');
@@ -80,9 +83,28 @@ try {
         ':contact_number' => $contactNumber,
     ]);
 
+    $orderId = (int) $pdo->lastInsertId();
+
     $pdo->commit();
 
-    json_response(['success' => true, 'message' => "Order placed! We'll reach out to arrange payment and pickup."]);
+    // Send confirmation email — don't block/fail the order if this errors out.
+    $stmt = $pdo->prepare('SELECT full_name, email FROM customers WHERE id = :id');
+    $stmt->execute([':id' => $_SESSION['customer_id']]);
+    $customer = $stmt->fetch();
+
+    if ($customer) {
+        send_order_confirmation_email(
+            $customer['email'],
+            $customer['full_name'],
+            $productNames[$product],
+            $quantity,
+            $location,
+            $contactNumber,
+            $orderId
+        );
+    }
+
+    json_response(['success' => true, 'message' => "Order placed! Check your email for a confirmation."]);
 } catch (PDOException $e) {
     $pdo->rollBack();
     error_log('order.php insert failed: ' . $e->getMessage());

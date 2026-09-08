@@ -1,6 +1,11 @@
 <?php
 require_once 'includes/csrf.php';
 require_once 'includes/functions.php';
+require_once 'config/database.php';
+
+$publishedReviews = $pdo->query(
+    'SELECT * FROM reviews WHERE is_published = 1 ORDER BY created_at DESC LIMIT 2'
+)->fetchAll();
 ?>
 <!doctype html>
 <html lang="en">
@@ -151,40 +156,41 @@ require_once 'includes/functions.php';
                 </form>
 
 
-                <article class="review-card">
-                    <span class="stars">★★★★★</span>
+                                <?php if (empty($publishedReviews)): ?>
 
-                    <h3>AMAZING!</h3>
+                    <article class="review-card">
+                        <span class="stars">★★★★★</span>
+                        <h3>AMAZING!</h3>
+                        <p>Good community, amazing staff and overall good vibes.</p>
+                        <div class="reviewer">
+                            <img src="assets/reviewer.png" alt="Reviewer">
+                            <span>Reviewer name<br><small>Date</small></span>
+                        </div>
+                    </article>
 
-                    <?php paragraph('review_amazing.txt'); ?>
+                <?php else: ?>
 
-                    <div class="reviewer">
-                        <img src="assets/reviewer.png" alt="Reviewer">
+                    <?php foreach ($publishedReviews as $r): ?>
+                        <article class="review-card">
+                            <span class="stars">
+                                <?= str_repeat('★', (int) $r['rating']) . str_repeat('☆', 5 - (int) $r['rating']) ?>
+                            </span>
 
-                        <span>
-                            Reviewer name<br>
-                            <small>Date</small>
-                        </span>
-                    </div>
-                </article>
+                            <h3><?= (int) $r['rating'] >= 4 ? 'AMAZING!' : 'GOOD!' ?></h3>
 
+                            <p><?= nl2br(htmlspecialchars($r['review_text'], ENT_QUOTES, 'UTF-8')) ?></p>
 
-                <article class="review-card">
-                    <span class="stars">★★★★☆</span>
+                            <div class="reviewer">
+                                <img src="assets/reviewer.png" alt="Reviewer">
+                                <span>
+                                    <?= htmlspecialchars($r['reviewer_name'], ENT_QUOTES, 'UTF-8') ?><br>
+                                    <small><?= htmlspecialchars(date('M j, Y', strtotime($r['created_at'])), ENT_QUOTES, 'UTF-8') ?></small>
+                                </span>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
 
-                    <h3>GOOD!</h3>
-
-                    <?php paragraph('review_good.txt'); ?>
-
-                    <div class="reviewer">
-                        <img src="assets/reviewer.png" alt="Reviewer">
-
-                        <span>
-                            Reviewer name<br>
-                            <small>Date</small>
-                        </span>
-                    </div>
-                </article>
+                <?php endif; ?>
 
             </div>
         </section>

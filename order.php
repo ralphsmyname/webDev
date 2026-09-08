@@ -2,7 +2,8 @@
 require_once 'includes/csrf.php';
 require_once 'includes/functions.php';
 require_once 'includes/customer_auth.php';
-require_customer_login('account/login.php');
+$merchUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/merch.php';
+require_customer_login('account/login.php', $merchUrl);
 
 $validProducts = [
     'bottle'    => 'Water Bottle',
@@ -52,8 +53,11 @@ if (!isset($validProducts[$product])) {
 <p class="form-note"></p>
 </form>
 
-<p>Logged in as <?= htmlspecialchars($_SESSION['customer_name'], ENT_QUOTES, 'UTF-8') ?> —
-<a href="account/orders.php">view my orders</a> · <a href="account/logout.php">log out</a></p>
+<p style="margin-top:16px;">Logged in as <?= htmlspecialchars($_SESSION['customer_name'], ENT_QUOTES, 'UTF-8') ?></p>
+<div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">
+    <a class="btn btn-light" href="account/orders.php">My Orders</a>
+    <a class="btn" href="account/logout.php">Log Out</a>
+</div>
 </div>
 </section>
 </main>

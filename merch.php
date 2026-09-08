@@ -12,15 +12,22 @@
 
 <body>
 
+    <?php require_once 'includes/customer_auth.php'; ?>
     <?php include 'partials/header.php'; ?>
     <?php include 'partials/text.php'; ?>
 
     <main>
 
         <section class="inner-hero">
-            <div class="container">
-                <h1>BUY OUR MERCH!</h1>
-            </div>
+             <div class="container">
+                  <h1>BUY OUR MERCH!</h1>
+
+                    <?php if (!empty($_SESSION['customer_id'])): ?>
+                    <a class="btn btn-light btn-auto" href="account/orders.php" style="margin-top:20px;">My Orders</a>
+                        <?php else: ?>
+                            <a class="btn btn-light btn-auto" href="account/login.php" style="margin-top:20px;">Log In to Order</a>
+                        <?php endif; ?>
+             </div>
         </section>
 
 

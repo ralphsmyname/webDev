@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/mailer.php';
+
+$basePath = '../';
 
 if (!empty($_SESSION['customer_id'])) {
     header('Location: orders.php');
@@ -36,18 +39,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errors)) {
             try {
-                $stmt = $pdo->prepare('INSERT INTO customers (full_name, email, password_hash) VALUES (:n, :e, :p)');
+                $otp = generate_otp();
+
+                $stmt = $pdo->prepare(
+                    'INSERT INTO customers (full_name, email, password_hash, is_verified, otp_code, otp_expires_at)
+                     VALUES (:n, :e, :p, 0, :otp, DATE_ADD(NOW(), INTERVAL 10 MINUTE))'
+                );
                 $stmt->execute([
-                    ':n' => $fullName,
-                    ':e' => $email,
-                    ':p' => password_hash($password, PASSWORD_DEFAULT),
+                    ':n'   => $fullName,
+                    ':e'   => $email,
+                    ':p'   => password_hash($password, PASSWORD_DEFAULT),
+                    ':otp' => $otp,
                 ]);
 
-                session_regenerate_id(true);
-                $_SESSION['customer_id']   = $pdo->lastInsertId();
-                $_SESSION['customer_name'] = $fullName;
+                $newId = $pdo->lastInsertId();
 
-                header('Location: orders.php');
+                send_otp_email($email, $fullName, $otp);
+
+                session_regenerate_id(true);
+                $_SESSION['pending_customer_id'] = $newId;
+
+                header('Location: verify.php');
                 exit;
             } catch (PDOException $e) {
                 if ((int) $e->getCode() === 23000 || str_contains($e->getMessage(), '1062')) {
