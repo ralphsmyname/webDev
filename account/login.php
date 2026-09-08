@@ -26,7 +26,7 @@ $stmt->execute([':e' => $email]);
 $customer = $stmt->fetch();
 
 if ($customer && password_verify($password, $customer['password_hash'])) {
-    if (!$customer['is_verified']) {
+    /*if (!$customer['is_verified']) {
         $otp = generate_otp();
         $stmt = $pdo->prepare(
             'UPDATE customers SET otp_code = :otp, otp_expires_at = DATE_ADD(NOW(), INTERVAL 10 MINUTE) WHERE id = :id'
@@ -39,7 +39,7 @@ if ($customer && password_verify($password, $customer['password_hash'])) {
 
         header('Location: verify.php');
         exit;
-    }
+    } */
 
     session_regenerate_id(true);
     $_SESSION['customer_id']   = $customer['id'];

@@ -11,12 +11,12 @@ if (!verify_csrf($_POST['csrf_token'] ?? null)) {
     json_response(['success' => false, 'message' => 'Your session expired. Please refresh the page and try again.'], 403);
 }
 
-// ---- Sanitize ----
+// kani sanitation
 $reviewerName = sanitize_string($_POST['reviewer_name'] ?? '');
 $rating       = sanitize_rating($_POST['rating'] ?? 5);
 $reviewText   = sanitize_string($_POST['review'] ?? '');
 
-// ---- Validate ----
+// kani validation
 $errors = [];
 
 if ($reviewerName === '') {
@@ -37,7 +37,7 @@ if (!empty($errors)) {
     json_response(['success' => false, 'errors' => $errors, 'message' => 'Please fix the highlighted fields.'], 422);
 }
 
-// ---- Insert (unpublished — an admin approves it before it appears on the site) ----
+// kani kay diri nako paagion paingon sa admin before ipagawa sa site
 try {
     $stmt = $pdo->prepare(
         'INSERT INTO reviews (reviewer_name, rating, review_text, is_published) VALUES (:name, :rating, :text, 0)'

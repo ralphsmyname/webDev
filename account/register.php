@@ -37,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['confirm'] = 'Passwords do not match.';
         }
 
-        if (empty($errors)) {
+            if (empty($errors)) {
+            /* --- OTP version, disabled for now ---
             try {
                 $otp = generate_otp();
 
@@ -69,7 +70,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errors['_general'] = 'Something went wrong. Please try again.';
                 }
             }
+            --- end OTP version --- */
+
+            try {
+                $stmt = $pdo->prepare('INSERT INTO customers (full_name, email, password_hash) VALUES (:n, :e, :p)');
+                $stmt->execute([
+                    ':n' => $fullName,
+                    ':e' => $email,
+                    ':p' => password_hash($password, PASSWORD_DEFAULT),
+                ]);
+
+                session_regenerate_id(true);
+                $_SESSION['customer_id']   = $pdo->lastInsertId();
+                $_SESSION['customer_name'] = $fullName;
+
+                header('Location: orders.php');
+                exit;
+                    } catch (PDOException $e) {
+                    if ((int) $e->getCode() === 23000 || str_contains($e->getMessage(), '1062')) {
+                        $errors['email'] = 'An account with this email already exists.';
+                    } else {
+                        error_log('register.php: ' . $e->getMessage());
+                        $errors['_general'] = 'Something went wrong. Please try again.';
+                }
+            }
         }
+    
     }
 }
 ?>

@@ -11,13 +11,13 @@ if (!verify_csrf($_POST['csrf_token'] ?? null)) {
     json_response(['success' => false, 'message' => 'Your session expired. Please refresh the page and try again.'], 403);
 }
 
-// ---- Sanitize ----
+//kani sanitation
 $name     = sanitize_string($_POST['name'] ?? '');
 $emailRaw = $_POST['email'] ?? '';
 $email    = sanitize_email($emailRaw);
 $message  = sanitize_string($_POST['message'] ?? '');
 
-// ---- Validate ----
+// kani validation
 $errors = [];
 
 if ($name === '') {

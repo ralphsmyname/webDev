@@ -1,24 +1,20 @@
 # Hinlo Airsoft Zone — Database & CRUD Setup
 
-This adds a real MySQL backend to the three forms on the site (Join,
-Contacts, and the home page review form), plus a small admin panel at
-`/admin` for full CRUD (Create, Read, Update, Delete) on everything
-those forms collect.
+Kini nga setup nagdugang og tinuod nga MySQL backend para sa tulo ka forms sa site (Join, Contacts, ug home page review form), apil ang gamay nga admin panel sa `/admin` para sa full CRUD (**Create, Read, Update, Delete**) sa tanang impormasyon nga makolekta sa mga forms.
 
-## 1. What was added
+## 1. Unsa ang gidugang
 
-```
+text
 config/database.php        PDO connection (reads env vars, safe defaults)
 config/.htaccess            blocks direct web access to this folder
 includes/csrf.php           session bootstrap + CSRF token helpers
 includes/functions.php      sanitize/validate helpers, flash messages, json_response()
 includes/admin_auth.php     login guard for /admin pages
-includes/.htaccess          blocks direct web access to this folder
 actions/register.php        handles the Join Us form (Create)
 actions/contact.php         handles the Contacts form (Create)
 actions/review.php          handles the home page review form (Create, unpublished by default)
 admin/setup.php             one-time "create the first admin account" screen
-admin/login.php              /admin/logout.php     session-based auth
+admin/login.php             /admin/logout.php     session-based auth
 admin/index.php             dashboard with counts
 admin/registrations.php     list / delete / confirm registrations   (R, U, D)
 admin/registration_form.php add / edit a registration                (C, U)
@@ -28,130 +24,235 @@ admin/review_form.php       add / edit a review
 sql/schema.sql              full database schema
 sql/.htaccess               blocks direct web access to this folder
 .env.example                environment variable template
-```
 
-`join.php`, `contacts.php`, and `index.php` were updated so their
-forms actually submit (with a CSRF token and `name` attributes) to
-the new `actions/*.php` endpoints. `js/main.js` was rewritten to
-submit every `[data-demo-form]` via `fetch()`, show field-level
-errors returned by the server, and show a success/error message —
-no page reload.
+
+Ang `join.php`, `contacts.php`, ug `index.php` gi-update aron ang ilang mga forms makasubmit na gyud gamit ang CSRF token ug `name` attributes ngadto sa bag-ong `actions/*.php` endpoints.
+
+Ang `js/main.js` gi-rewrite aron i-submit ang matag `[data-demo-form]` gamit ang `fetch()`. Makapakita usab kini og field-level errors nga gibalik sa server, ug magpakita og success/error message — **walay page reload**.
 
 ## 2. Database setup
 
-### Quick start with XAMPP
+### Quick start gamit ang XAMPP
 
-1. **Copy the site into `htdocs`.** Move the whole `site` folder (or
-   its contents) into your XAMPP `htdocs` directory, e.g.
-   `C:\xampp\htdocs\hinlo\` on Windows or
-   `/Applications/XAMPP/xamppfiles/htdocs/hinlo/` on macOS.
-2. **Start Apache and MySQL** from the XAMPP Control Panel.
-3. **Import the schema.** Open `http://localhost/phpmyadmin`, click
-   **Import**, choose `sql/schema.sql`, click **Go**. This creates
-   the `hinlo_airsoft` database and all four tables.
-4. **Leave `config/database.php` as-is** — its defaults
-   (`localhost`, database `hinlo_airsoft`, user `root`, empty
-   password, port `3306`) already match a stock XAMPP install. Only
-   edit it if you changed your MySQL root password or port.
-5. **Visit the site**: `http://localhost/hinlo/index.php` (adjust
-   the folder name to whatever you used in step 1).
-6. **Create your admin account**: go to
-   `http://localhost/hinlo/admin/setup.php` once, fill in a
-   username/password. That page refuses to run again once an admin
-   exists.
-7. **Log in** at `http://localhost/site/admin/login.php`.
+1. **I-copy ang site ngadto sa `htdocs`.**
 
-That's it — submit the Join Us, Contacts, or review form on the
-live site and the rows will show up in phpMyAdmin (table
-`registrations`, `contact_messages`, or `reviews`) and in the
-`/admin` panel.
+   Ibalhin ang tibuok `site` folder (o ang sulod niini) ngadto sa imong XAMPP `htdocs` directory.
 
-A couple of XAMPP-specific notes:
-- XAMPP's Apache doesn't read `.htaccess` `Require all denied`
-  rules unless `AllowOverride All` is set for `htdocs` in
-  `httpd.conf` (it's off by default in some XAMPP installs). It's
-  not a functional problem — those folders (`config/`, `includes/`,
-  `sql/`) contain no page output either way — but if you want the
-  extra layer of protection to actually take effect, open
-  `xampp/apache/conf/httpd.conf`, find the `<Directory "C:/xampp/htdocs">`
-  block, and set `AllowOverride All`.
-- If port 3306 is already taken by another MySQL install on your
-  machine, change it in XAMPP's `my.ini` and update `DB_PORT` (or
-  the fallback in `config/database.php`) to match.
+   Pananglitan sa Windows:
+
+   `C:\xampp\htdocs\hinlo\`
+
+   O sa macOS:
+
+   `/Applications/XAMPP/xamppfiles/htdocs/hinlo/`
+
+2. **I-start ang Apache ug MySQL** gikan sa XAMPP Control Panel.
+
+3. **I-import ang schema.**
+
+   Ablihi ang:
+
+   `http://localhost/phpmyadmin`
+
+   Dayon:
+
+   * I-click ang **Import**
+   * Pilia ang `sql/schema.sql`
+   * I-click ang **Go**
+
+   Kini maghimo sa `hinlo_airsoft` database ug sa upat ka tables.
+
+4. **Ayaw usba ang `config/database.php`** kung stock/default XAMPP setup imong gigamit.
+
+   Ang default values mao ni:
+
+   * host: `localhost`
+   * database: `hinlo_airsoft`
+   * user: `root`
+   * password: empty
+   * port: `3306`
+
+   Parehas kini sa kasagarang stock XAMPP installation.
+
+   Usba lang kini kung:
+
+   * adunay password ang imong MySQL root account; o
+   * lahi ang MySQL port nga imong gigamit.
+
+5. **Bisitaha ang site:**
+
+   `http://localhost/hinlo/index.php`
+
+   I-adjust ang folder name kung lahi ang imong gigamit.
+
+6. **Himoa ang imong admin account.**
+
+   Adto sa:
+
+   `http://localhost/hinlo/admin/setup.php`
+
+   Kausa ra kini gamiton. Pagsulod og username ug password.
+
+   Ang page dili na motugot og setup pag-usab kung adunay existing admin account.
+
+7. **Pag-login sa admin panel:**
+
+   `http://localhost/site/admin/login.php`
+
+Human niini, kompleto na ang basic setup.
+
+Kung mag-submit ka sa **Join Us**, **Contacts**, o **Review** form sa live site, ang data makita na sa phpMyAdmin:
+
+* `registrations`
+* `contact_messages`
+* `reviews`
+
+Makita usab kini sulod sa `/admin` panel.
+
+### XAMPP-specific nga mga nota
+
+* Ang XAMPP Apache dili mobasa sa `.htaccess` nga adunay `Require all denied` rules kung ang `AllowOverride All` wala ma-enable para sa `htdocs`.
+
+* Sa ubang XAMPP installations, mahimo nga naka-off kini pinaagi sa default.
+
+* Dili kini makaapekto sa actual functionality kay ang `config/`, `includes/`, ug `sql/` folders walay page output nga kinahanglan ma-access direkta.
+
+* Kung gusto nimo nga ma-apply gyud ang extra protection, ablihi:
+
+  `xampp/apache/conf/httpd.conf`
+
+* Pangitaa ang:
+
+```apache
+<Directory "C:/xampp/htdocs">
+```
+
+* Dayon himoa nga:
+
+```apache
+AllowOverride All
+```
+
+* Kung ang port `3306` gigamit na sa laing MySQL installation sa imong computer, usba ang port sa XAMPP `my.ini`.
+
+* Human niana, i-update usab ang `DB_PORT` (o ang fallback value sa `config/database.php`) aron parehas sa imong bag-ong MySQL port.
 
 ### General (non-XAMPP) setup
 
-### General (non-XAMPP) setup
+1. **Paghimo sa database ug tables:**
 
-1. Create the database and tables:
-   ```
-   mysql -u root -p < sql/schema.sql
-   ```
-2. Set your real credentials as environment variables (see
-   `.env.example`), or just edit the fallback defaults in
-   `config/database.php` for local development.
-3. Visit `/admin/setup.php` once in your browser to create your
-   first admin login. That page locks itself automatically as soon
-   as one admin account exists.
-4. Log in at `/admin/login.php`.
+```bash
+mysql -u root -p < sql/schema.sql
+```
 
-## 3. How data flows
+2. **I-set ang tinuod nga credentials** isip environment variables.
 
-**Public forms → Create.** Each form POSTs to its matching
-`actions/*.php` file, which:
-1. Confirms the request is POST and the CSRF token matches.
-2. **Sanitizes** input — trims whitespace, strips tags
-   (`sanitize_string()`), validates and normalizes email addresses
-   (`sanitize_email()` via `FILTER_VALIDATE_EMAIL`), and checks phone
-   format with a regex.
-3. **Validates** — required fields, length limits, format checks —
-   collecting per-field error messages.
-4. On success, inserts the row with a **parameterized/prepared
-   statement** (never string-concatenated SQL, so this is not
-   vulnerable to SQL injection) and returns JSON.
-5. `main.js` reads that JSON and shows either a success message or
-   the specific field errors, without a page reload.
+   Tan-awa ang `.env.example` para sa template.
 
-**Admin panel → Read / Update / Delete (and Create where useful).**
-Everything under `/admin` requires a logged-in session
-(`includes/admin_auth.php`). Every state-changing action (delete,
-status change, save) is a POST request checked against the same CSRF
-token pattern, and every SQL statement in `/admin` uses prepared
-statements as well.
+   Pwede usab nimo usbon diretso ang fallback defaults sa `config/database.php` kung local development pa.
+
+3. **Bisitaha ang `/admin/setup.php`** kausa aron makahimo sa unang admin login.
+
+   Awtomatikong ma-lock ang setup page kung adunay na'y admin account.
+
+4. **Pag-login sa:**
+
+   `/admin/login.php`
+
+## 3. Giunsa pag-flow sa data
+
+### Public forms → Create
+
+Ang matag form mag-POST ngadto sa iyang katumbas nga `actions/*.php` file.
+
+Ang process mao ni:
+
+1. Susihon kung ang request kay `POST` ug kung sakto ang CSRF token.
+
+2. **Sanitize ang input** — tangtangon ang sobra nga whitespace, strips tags gamit ang `sanitize_string()`, ug i-validate ug i-normalize ang email addresses gamit ang `sanitize_email()` ug `FILTER_VALIDATE_EMAIL`.
+
+3. Susihon ang phone format gamit ang regex.
+
+4. **I-validate ang data** — required fields, length limits, ug format checks. Ang mga errors kolektahon per field.
+
+5. Kung valid ang tanan, i-insert ang row gamit ang **parameterized/prepared statement**.
+
+   Dili gamiton ang string-concatenated SQL, busa protected kini batok sa SQL injection.
+
+6. Ibalik ang JSON response.
+
+7. Ang `main.js` mobasa sa JSON ug magpakita sa success message o specific field errors **nga walay page reload**.
+
+### Admin panel → Read / Update / Delete
+
+Ang tanan nga naa sa `/admin` kinahanglan adunay logged-in session.
+
+Gigamit kini sa:
+
+`includes/admin_auth.php`
+
+Ang tanang state-changing actions sama sa:
+
+* delete
+* status change
+* save
+
+kay kinahanglan nga **POST request** ug susihon batok sa CSRF token.
+
+Ang tanang SQL statements sulod sa `/admin` naggamit usab og prepared statements.
 
 ## 4. Security notes
 
-- **Prepared statements everywhere** — no raw SQL string building
-  from request data, anywhere in the codebase.
-- **CSRF tokens** on every form (public and admin), verified with
-  `hash_equals()`.
-- **Passwords hashed with `password_hash()` / `PASSWORD_DEFAULT`**
-  (bcrypt), verified with `password_verify()`. Plaintext passwords
-  are never stored.
-- **Output escaping** — everything echoed back into HTML goes
-  through `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')`, matching the
-  pattern already used by `partials/text.php`.
-- **`config/`, `includes/`, and `sql/` are blocked from direct web
-  access** via `.htaccess` (`Require all denied`) — if you're on
-  nginx instead of Apache, add an equivalent `location` block
-  denying those paths.
-- **Session timeout** — admin sessions expire after 30 minutes of
-  inactivity (`includes/admin_auth.php`).
-- **Basic login rate limiting** on `/admin/login.php` (10 attempts
-  per 15 minutes).
-- Reviews submitted publicly are inserted as **unpublished** and
-  only appear after an admin approves them from `/admin/reviews.php`
-  — this stops random visitors from posting live content straight to
-  a public review card.
+* **Prepared statements everywhere** — walay raw SQL string building gikan sa request data bisan asa sa codebase.
 
-## 5. Extending this
+* **CSRF tokens** — ang tanang forms, public man o admin, adunay CSRF protection ug gi-verify gamit ang `hash_equals()`.
 
-- To make the home page review cards pull live data instead of the
-  two static ones, query
-  `SELECT * FROM reviews WHERE is_published = 1 ORDER BY created_at DESC LIMIT 2`
-  in `index.php` and loop over the results the same way
-  `partials/text.php`'s `paragraph()` helper is used elsewhere.
-- The `sanitize_*()` / `verify_csrf()` / `json_response()` helpers in
-  `includes/functions.php` and `includes/csrf.php` are written to be
-  reused by any future form — follow the same pattern in
-  `actions/register.php` as a template.
+* **Passwords hashed with `password_hash()` / `PASSWORD_DEFAULT`** — ang passwords i-hash gamit ang bcrypt. Ang plaintext passwords dili gyud i-store.
+
+* **Output escaping** — ang tanang data nga i-output ngadto sa HTML moagi sa:
+
+  `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')`
+
+  Parehas kini sa pattern nga gigamit sa `partials/text.php`.
+
+* **`config/`, `includes/`, ug `sql/` protected** — gibabagan ang direct web access pinaagi sa `.htaccess` ug `Require all denied`.
+
+* Kung nginx imong web server imbes Apache, kinahanglan ka magdugang og equivalent `location` block aron ma-deny ang access sa maong paths.
+
+* **Session timeout** — ang admin sessions mo-expire human sa **30 minutos nga walay activity**.
+
+* **Basic login rate limiting** — adunay limit nga **10 login attempts sulod sa 15 minutos**.
+
+* **Reviews nga gikan sa public users** kay i-save una isip **unpublished**.
+
+* Ang reviews dili dayon makita sa public website hangtod nga i-approve sa admin pinaagi sa `/admin/reviews.php`.
+
+Kini makatabang pagpugong nga random visitors makapost diretso og content nga makita dayon sa public review cards.
+
+## 5. Pagpalapad sa system
+
+Kung gusto nimo nga ang review cards sa home page mogamit na og **live data** imbes nga duha ka static reviews, mahimo kang mo-query gamit:
+
+```sql
+SELECT * FROM reviews
+WHERE is_published = 1
+ORDER BY created_at DESC
+LIMIT 2
+```
+
+Dayon i-loop ang results sa `index.php` sa parehas nga paagi nga gigamit sa `partials/text.php` pinaagi sa `paragraph()` helper.
+
+Ang:
+
+* `sanitize_*()`
+* `verify_csrf()`
+* `json_response()`
+
+nga helpers sa `includes/functions.php` ug `includes/csrf.php` gihimo aron magamit pag-usab sa umaabot nga mga forms.
+
+Kung maghimo ka og bag-ong form, sundi ang pattern nga gigamit sa:
+
+`actions/register.php`
+
+aron consistent ang imong validation, CSRF protection, ug database handling.
+

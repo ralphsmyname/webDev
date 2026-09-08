@@ -6,7 +6,8 @@ require_once __DIR__ . '/../PHPMailer/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// --- Fill these in with your own Gmail address + App Password ---
+//kani sya nga part kay ang email nga maoy mo send sa otp
+
 const SMTP_USERNAME = 'hinsclips@gmail.com';
 const SMTP_PASSWORD = 'ytwf cgow efwr sbdu';
 const SMTP_FROM_NAME = 'Hinlo Airsoft Zone';
