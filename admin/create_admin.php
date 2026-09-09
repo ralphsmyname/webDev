@@ -6,6 +6,7 @@ require_once __DIR__ . '/../config/database.php';
 
 $errors = [];
 $success = false;
+$username = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf($_POST['csrf_token'] ?? null)) {
@@ -26,7 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errors)) {
             try {
-                $stmt = $pdo->prepare('INSERT INTO admin_users (username, password_hash) VALUES (:u, :p)');
+                $stmt = $pdo->prepare(
+                    "INSERT INTO users (role, full_name, username, password_hash) VALUES ('admin', :u, :u, :p)"
+                );
                 $stmt->execute([
                     ':u' => $username,
                     ':p' => password_hash($password, PASSWORD_DEFAULT),

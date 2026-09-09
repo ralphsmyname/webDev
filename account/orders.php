@@ -2,13 +2,13 @@
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/customer_auth.php';
-require_customer_login('login.php');
+require_customer_login('../login.php');
 require_once __DIR__ . '/../config/database.php';
 
 $basePath = '../';
 
 $stmt = $pdo->prepare('SELECT * FROM merch_orders WHERE customer_id = :id ORDER BY created_at DESC');
-$stmt->execute([':id' => $_SESSION['customer_id']]);
+$stmt->execute([':id' => $_SESSION['user_id']]);
 $orders = $stmt->fetchAll();
 
 $productNames = ['bottle' => 'Water Bottle', 'bag' => 'Tote Bag', 'hoodie' => 'Hoodie', 'balaclava' => 'Balaclava'];
@@ -31,8 +31,8 @@ $productNames = ['bottle' => 'Water Bottle', 'bag' => 'Tote Bag', 'hoodie' => 'H
 <div class="account-card-wide">
 
     <div class="account-topline">
-        <span>Logged in as <strong><?= htmlspecialchars($_SESSION['customer_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
-        <a href="logout.php">Log out</a>
+        <span>Logged in as <strong><?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
+        <a href="../logout.php">Log out</a>
     </div>
 
     <h2>My Orders</h2>

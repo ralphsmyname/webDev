@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/mailer.php';
 
-if (empty($_SESSION['customer_id'])) {
+if (empty($_SESSION['user_id'])) {
     json_response(['success' => false, 'message' => 'Please log in to place an order.'], 401);
 }
 
@@ -76,7 +76,7 @@ try {
          VALUES (:customer_id, :product, :quantity, :location, :contact_number)'
     );
     $stmt->execute([
-        ':customer_id'    => $_SESSION['customer_id'],
+        ':customer_id'    => $_SESSION['user_id'],
         ':product'        => $product,
         ':quantity'       => $quantity,
         ':location'       => $location,
@@ -87,9 +87,8 @@ try {
 
     $pdo->commit();
 
-    // Send confirmation email — don't block/fail the order if this errors out.
-    $stmt = $pdo->prepare('SELECT full_name, email FROM customers WHERE id = :id');
-    $stmt->execute([':id' => $_SESSION['customer_id']]);
+    $stmt = $pdo->prepare('SELECT full_name, email FROM users WHERE id = :id');
+    $stmt->execute([':id' => $_SESSION['user_id']]);
     $customer = $stmt->fetch();
 
     if ($customer) {

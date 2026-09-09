@@ -2,8 +2,10 @@
 require_once 'includes/csrf.php';
 require_once 'includes/functions.php';
 require_once 'includes/customer_auth.php';
+require_once 'config/database.php';
+
 $merchUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/merch.php';
-require_customer_login('account/login.php', $merchUrl);
+require_customer_login('login.php', $merchUrl);
 
 $validProducts = [
     'bottle'    => 'Water Bottle',
@@ -20,10 +22,10 @@ if (!isset($validProducts[$product])) {
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Order <?= htmlspecialchars($validProducts[$product], ENT_QUOTES, 'UTF-8') ?> | Hinlo Airsoft Zone</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Order <?= htmlspecialchars($validProducts[$product], ENT_QUOTES, 'UTF-8') ?> | Hinlo Airsoft Zone</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <?php include 'partials/header.php'; ?>
@@ -53,10 +55,10 @@ if (!isset($validProducts[$product])) {
 <p class="form-note"></p>
 </form>
 
-<p style="margin-top:16px;">Logged in as <?= htmlspecialchars($_SESSION['customer_name'], ENT_QUOTES, 'UTF-8') ?></p>
+<p style="margin-top:16px;">Logged in as <?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></p>
 <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">
     <a class="btn btn-light" href="account/orders.php">My Orders</a>
-    <a class="btn" href="account/logout.php">Log Out</a>
+    <a class="btn" href="logout.php">Log Out</a>
 </div>
 </div>
 </section>

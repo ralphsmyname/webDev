@@ -2,11 +2,10 @@
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/mailer.php';
 
 $basePath = '../';
 
-if (!empty($_SESSION['customer_id'])) {
+if (!empty($_SESSION['user_id'])) {
     header('Location: orders.php');
     exit;
 }
@@ -37,30 +36,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['confirm'] = 'Passwords do not match.';
         }
 
-            if (empty($errors)) {
-            /* --- OTP version, disabled for now ---
+        if (empty($errors)) {
             try {
-                $otp = generate_otp();
-
                 $stmt = $pdo->prepare(
-                    'INSERT INTO customers (full_name, email, password_hash, is_verified, otp_code, otp_expires_at)
-                     VALUES (:n, :e, :p, 0, :otp, DATE_ADD(NOW(), INTERVAL 10 MINUTE))'
+                    "INSERT INTO users (role, full_name, email, password_hash) VALUES ('customer', :n, :e, :p)"
                 );
                 $stmt->execute([
-                    ':n'   => $fullName,
-                    ':e'   => $email,
-                    ':p'   => password_hash($password, PASSWORD_DEFAULT),
-                    ':otp' => $otp,
+                    ':n' => $fullName,
+                    ':e' => $email,
+                    ':p' => password_hash($password, PASSWORD_DEFAULT),
                 ]);
 
-                $newId = $pdo->lastInsertId();
-
-                send_otp_email($email, $fullName, $otp);
-
                 session_regenerate_id(true);
-                $_SESSION['pending_customer_id'] = $newId;
+                $_SESSION['user_id']   = $pdo->lastInsertId();
+                $_SESSION['user_role'] = 'customer';
+                $_SESSION['user_name'] = $fullName;
 
-                header('Location: verify.php');
+                header('Location: orders.php');
                 exit;
             } catch (PDOException $e) {
                 if ((int) $e->getCode() === 23000 || str_contains($e->getMessage(), '1062')) {
@@ -70,32 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errors['_general'] = 'Something went wrong. Please try again.';
                 }
             }
-            --- end OTP version --- */
-
-            try {
-                $stmt = $pdo->prepare('INSERT INTO customers (full_name, email, password_hash) VALUES (:n, :e, :p)');
-                $stmt->execute([
-                    ':n' => $fullName,
-                    ':e' => $email,
-                    ':p' => password_hash($password, PASSWORD_DEFAULT),
-                ]);
-
-                session_regenerate_id(true);
-                $_SESSION['customer_id']   = $pdo->lastInsertId();
-                $_SESSION['customer_name'] = $fullName;
-
-                header('Location: orders.php');
-                exit;
-                    } catch (PDOException $e) {
-                    if ((int) $e->getCode() === 23000 || str_contains($e->getMessage(), '1062')) {
-                        $errors['email'] = 'An account with this email already exists.';
-                    } else {
-                        error_log('register.php: ' . $e->getMessage());
-                        $errors['_general'] = 'Something went wrong. Please try again.';
-                }
-            }
         }
-    
     }
 }
 ?>
@@ -140,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button class="btn" type="submit">Sign Up</button>
     </form>
 
-    <p class="account-footer">Already have an account? <a href="login.php">Log in</a></p>
+    <p class="account-footer">Already have an account? <a href="../login.php">Log in</a></p>
 </div>
 </div>
 </section>
