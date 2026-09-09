@@ -62,10 +62,12 @@ function send_order_confirmation_email(
     string $toName,
     string $productName,
     int $quantity,
+    float $unitPrice,
     string $location,
     string $contactNumber,
     int $orderId
 ): bool {
+    $total = $unitPrice * $quantity;
     $mail = new PHPMailer(true);
 
     try {
@@ -88,12 +90,14 @@ function send_order_confirmation_email(
             . "<tr><td><strong>Order #</strong></td><td>{$orderId}</td></tr>"
             . "<tr><td><strong>Product</strong></td><td>" . htmlspecialchars($productName) . "</td></tr>"
             . "<tr><td><strong>Quantity</strong></td><td>{$quantity}</td></tr>"
+            . "<tr><td><strong>Unit price</strong></td><td>" . format_price($unitPrice) . "</td></tr>"
+            . "<tr><td><strong>Total</strong></td><td>" . format_price($total) . "</td></tr>"
             . "<tr><td><strong>Location</strong></td><td>" . htmlspecialchars($location) . "</td></tr>"
             . "<tr><td><strong>Contact number</strong></td><td>" . htmlspecialchars($contactNumber) . "</td></tr>"
             . "<tr><td><strong>Status</strong></td><td>Pending</td></tr>"
             . "</table>"
             . "<p>We'll reach out to arrange payment and pickup/delivery. You can check your order status anytime by logging in and visiting My Orders.</p>";
-        $mail->AltBody = "Order #{$orderId} confirmed: {$quantity}x {$productName} to {$location}, contact {$contactNumber}. Status: Pending.";
+        $mail->AltBody = "Order #{$orderId} confirmed: {$quantity}x {$productName} (" . format_price($total) . ") to {$location}, contact {$contactNumber}. Status: Pending.";
 
         $mail->send();
         return true;

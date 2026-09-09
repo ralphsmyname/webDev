@@ -18,6 +18,10 @@ $product = $_GET['product'] ?? '';
 if (!isset($validProducts[$product])) {
     die('Unknown product.');
 }
+
+$stmt = $pdo->prepare('SELECT price FROM merch_stock WHERE product = :p');
+$stmt->execute([':p' => $product]);
+$unitPrice = (float) ($stmt->fetchColumn() ?: 0);
 ?>
 <!doctype html>
 <html lang="en">
@@ -35,13 +39,17 @@ if (!isset($validProducts[$product])) {
 <section class="page-section">
 <div class="container" style="max-width:480px;">
 
+<p style="text-align:center;font-size:18px;">Price: <strong><?= htmlspecialchars(format_price($unitPrice), ENT_QUOTES, 'UTF-8') ?></strong> each</p>
+
 <form class="contact-box" data-demo-form data-endpoint="actions/order.php" method="post" action="actions/order.php" novalidate>
 <?= csrf_field() ?>
 <input type="hidden" name="product" value="<?= htmlspecialchars($product, ENT_QUOTES, 'UTF-8') ?>">
 
 <label for="quantity">Quantity</label>
-<input type="number" id="quantity" name="quantity" min="1" max="20" value="1">
+<input type="number" id="quantity" name="quantity" min="1" max="20" value="1" data-unit-price="<?= htmlspecialchars((string) $unitPrice, ENT_QUOTES, 'UTF-8') ?>" oninput="document.getElementById('order-total').textContent = (this.value > 0 ? (this.value * this.dataset.unitPrice).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00');">
 <span class="field-error" data-error-for="quantity"></span>
+
+<p style="text-align:center;margin-top:4px;">Total: ₱<span id="order-total"><?= number_format($unitPrice, 2) ?></span></p>
 
 <label for="location">Delivery / pickup location</label>
 <input type="text" id="location" name="location" maxlength="255" placeholder="e.g. Barangay, city">

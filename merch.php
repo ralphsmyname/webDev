@@ -1,6 +1,12 @@
 <?php
 require_once 'includes/csrf.php';
 require_once 'includes/functions.php';
+require_once 'config/database.php';
+
+$prices = [];
+foreach ($pdo->query('SELECT product, price FROM merch_stock') as $row) {
+    $prices[$row['product']] = (float) $row['price'];
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -42,6 +48,7 @@ require_once 'includes/functions.php';
                     <article class="info-card">
                         <img src="assets/merch-bottle.png" alt="Bottle">
                         <h3>Water Bottle</h3>
+                        <p class="merch-price"><?= htmlspecialchars(format_price($prices['bottle'] ?? 0), ENT_QUOTES, 'UTF-8') ?></p>
                         <?php paragraph('merch_bottle.txt'); ?>
                         <a class="btn" href="order.php?product=bottle">ORDER</a>
                     </article>
@@ -49,6 +56,7 @@ require_once 'includes/functions.php';
                     <article class="info-card">
                         <img src="assets/merch-bag.png" alt="Bag">
                         <h3>Tote Bag</h3>
+                        <p class="merch-price"><?= htmlspecialchars(format_price($prices['bag'] ?? 0), ENT_QUOTES, 'UTF-8') ?></p>
                         <?php paragraph('merch_bag.txt'); ?>
                         <a class="btn" href="order.php?product=bag">ORDER</a>
                     </article>
@@ -56,6 +64,7 @@ require_once 'includes/functions.php';
                     <article class="info-card">
                         <img src="assets/merch-hoodie.png" alt="Hoodie">
                         <h3>Hoodie</h3>
+                        <p class="merch-price"><?= htmlspecialchars(format_price($prices['hoodie'] ?? 0), ENT_QUOTES, 'UTF-8') ?></p>
                         <?php paragraph('merch_hoodie.txt'); ?>
                         <a class="btn" href="order.php?product=hoodie">ORDER</a>
                     </article>
@@ -63,6 +72,7 @@ require_once 'includes/functions.php';
                     <article class="info-card">
                         <img src="assets/merch-balaclava.png" alt="Balaclava">
                         <h3>Balaclava</h3>
+                        <p class="merch-price"><?= htmlspecialchars(format_price($prices['balaclava'] ?? 0), ENT_QUOTES, 'UTF-8') ?></p>
                         <?php paragraph('merch_balaclava.txt'); ?>
                         <a class="btn" href="order.php?product=balaclava">ORDER</a>
                     </article>

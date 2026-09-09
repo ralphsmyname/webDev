@@ -1175,3 +1175,51 @@ a {
     padding: 0 26px;
     white-space: nowrap;
 }
+.merch-price {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+.admin-inline-form {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.admin-inline-form input[type="number"] {
+    flex: 1 1 60px;
+    min-width: 0;
+    padding: 4px;
+}
+
+.admin-inline-form .admin-btn {
+    font-size: 12px;
+    padding: 4px 10px;
+    flex-shrink: 0;
+}
+
+.admin-inline-form-price {
+    margin-top: 6px;
+}
+
+.admin-inline-form-price .admin-btn {
+    width: 100%;
+} 
+.admin-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    max-width: 130px;
+}
+
+.admin-actions select,
+.admin-actions button {
+    width: 100%;
+}
+
+.admin-table td:last-child {
+    width: 1%;
+    white-space: nowrap;
+}

@@ -1,111 +1,452 @@
+
 <?php
+
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/mailer.php';
 
-if (empty($_SESSION['user_id'])) {
-    json_response(['success' => false, 'message' => 'Please log in to place an order.'], 401);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATION
+|--------------------------------------------------------------------------
+*/
+
+if (empty($_SESSION['user_id'])) {
+    json_response([
+        'success' => false,
+        'message' => 'Please log in before placing an order.'
+    ], 401);
+}
+
+if (
+    isset($_SESSION['user_role']) &&
+    $_SESSION['user_role'] !== 'customer'
+) {
+    json_response([
+        'success' => false,
+        'message' => 'Only customer accounts can place orders.'
+    ], 403);
+}
+
+/*
+|--------------------------------------------------------------------------
+| REQUEST METHOD
+|--------------------------------------------------------------------------
+*/
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    json_response(['success' => false, 'message' => 'Invalid request method.'], 405);
+    json_response([
+        'success' => false,
+        'message' => 'Invalid request method.'
+    ], 405);
 }
+
+/*
+|--------------------------------------------------------------------------
+| CSRF
+|--------------------------------------------------------------------------
+*/
 
 if (!verify_csrf($_POST['csrf_token'] ?? null)) {
-    json_response(['success' => false, 'message' => 'Your session expired. Please refresh and try again.'], 403);
+    json_response([
+        'success' => false,
+        'message' => 'Your session expired. Please refresh the page and try again.'
+    ], 403);
 }
 
-$productNames = ['bottle' => 'Water Bottle', 'bag' => 'Tote Bag', 'hoodie' => 'Hoodie', 'balaclava' => 'Balaclava'];
+/*
+|--------------------------------------------------------------------------
+| INPUT
+|--------------------------------------------------------------------------
+*/
 
-$validProducts = array_keys($productNames);
-$product       = $_POST['product'] ?? '';
-$quantity      = (int) ($_POST['quantity'] ?? 0);
-$location      = sanitize_string($_POST['location'] ?? '');
-$contactNumber = sanitize_phone($_POST['contact_number'] ?? '');
+$product = sanitize_string($_POST['product'] ?? '');
+
+$quantityRaw = $_POST['quantity'] ?? '';
+
+$location = sanitize_string(
+    $_POST['location'] ?? ''
+);
+
+$contactRaw = $_POST['contact_number'] ?? '';
+
+$contact = sanitize_phone($contactRaw);
 
 $errors = [];
 
-if (!in_array($product, $validProducts, true)) {
-    $errors['product'] = 'Invalid product.';
+/*
+|--------------------------------------------------------------------------
+| PRODUCT
+|--------------------------------------------------------------------------
+|
+| We DO NOT hard-code product names here.
+| The database decides which products are valid.
+|--------------------------------------------------------------------------
+*/
+
+if ($product === '') {
+
+    $errors['product'] = 'Please select a product.';
+
 }
-if ($quantity < 1 || $quantity > 20) {
-    $errors['quantity'] = 'Quantity must be between 1 and 20.';
+
+/*
+|--------------------------------------------------------------------------
+| QUANTITY
+|--------------------------------------------------------------------------
+*/
+
+$quantity = filter_var(
+    $quantityRaw,
+    FILTER_VALIDATE_INT
+);
+
+if ($quantity === false || $quantity < 1) {
+
+    $errors['quantity'] = 'Please enter a valid quantity.';
+
+} elseif ($quantity > 100) {
+
+    $errors['quantity'] = 'Maximum quantity is 100.';
+
 }
+
+/*
+|--------------------------------------------------------------------------
+| LOCATION
+|--------------------------------------------------------------------------
+*/
+
 if ($location === '') {
-    $errors['location'] = 'Please enter a delivery or pickup location.';
+
+    $errors['location'] = 'Please enter your delivery location.';
+
 } elseif (mb_strlen($location) > 255) {
-    $errors['location'] = 'Location is too long.';
+
+    $errors['location'] = 'Delivery location is too long.';
+
 }
-if (($_POST['contact_number'] ?? '') === '' || trim($_POST['contact_number']) === '') {
-    $errors['contact_number'] = 'Please enter a contact number.';
-} elseif ($contactNumber === null) {
-    $errors['contact_number'] = 'Please enter a valid contact number.';
+
+/*
+|--------------------------------------------------------------------------
+| CONTACT NUMBER
+|--------------------------------------------------------------------------
+*/
+
+if (trim($contactRaw) === '') {
+
+    $errors['contact_number'] =
+        'Please enter your contact number.';
+
+} elseif ($contact === null) {
+
+    $errors['contact_number'] =
+        'Please enter a valid contact number.';
+
 }
+
+/*
+|--------------------------------------------------------------------------
+| STOP IF VALIDATION FAILED
+|--------------------------------------------------------------------------
+*/
 
 if (!empty($errors)) {
-    json_response(['success' => false, 'errors' => $errors, 'message' => 'Please fix the highlighted fields.'], 422);
+
+    json_response([
+        'success' => false,
+        'errors' => $errors,
+        'message' => 'Please fix the highlighted fields.'
+    ], 422);
+
 }
 
+/*
+|--------------------------------------------------------------------------
+| USER
+|--------------------------------------------------------------------------
+*/
+
+$userId = (int) $_SESSION['user_id'];
+
 try {
+
+    /*
+    |--------------------------------------------------------------------------
+    | START TRANSACTION
+    |--------------------------------------------------------------------------
+    */
+
     $pdo->beginTransaction();
 
-    $stmt = $pdo->prepare('SELECT stock_quantity FROM merch_stock WHERE product = :p FOR UPDATE');
-    $stmt->execute([':p' => $product]);
-    $stock = $stmt->fetchColumn();
+    /*
+    |--------------------------------------------------------------------------
+    | VERIFY USER
+    |--------------------------------------------------------------------------
+    */
 
-    if ($stock === false) {
-        $pdo->rollBack();
-        json_response(['success' => false, 'message' => 'This product is not available.'], 404);
-    }
+    $userStmt = $pdo->prepare(
+        'SELECT
+            id,
+            full_name,
+            email
+         FROM users
+         WHERE id = :id
+         LIMIT 1'
+    );
 
-    if ($quantity > (int) $stock) {
+    $userStmt->execute([
+        ':id' => $userId
+    ]);
+
+    $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+
         $pdo->rollBack();
+
         json_response([
             'success' => false,
-            'errors'  => ['quantity' => "Only {$stock} left in stock."],
-            'message' => "Only {$stock} left in stock.",
-        ], 409);
+            'message' => 'Your account could not be found. Please log in again.'
+        ], 401);
+
     }
 
-    $stmt = $pdo->prepare('UPDATE merch_stock SET stock_quantity = stock_quantity - :q WHERE product = :p');
-    $stmt->execute([':q' => $quantity, ':p' => $product]);
+    /*
+    |--------------------------------------------------------------------------
+    | GET PRODUCT / STOCK / PRICE
+    |--------------------------------------------------------------------------
+    */
 
-    $stmt = $pdo->prepare(
-        'INSERT INTO merch_orders (customer_id, product, quantity, location, contact_number)
-         VALUES (:customer_id, :product, :quantity, :location, :contact_number)'
+    $stockStmt = $pdo->prepare(
+        'SELECT
+            product,
+            stock_quantity,
+            price
+         FROM merch_stock
+         WHERE product = :product
+         LIMIT 1
+         FOR UPDATE'
     );
-    $stmt->execute([
-        ':customer_id'    => $_SESSION['user_id'],
-        ':product'        => $product,
-        ':quantity'       => $quantity,
-        ':location'       => $location,
-        ':contact_number' => $contactNumber,
+
+    $stockStmt->execute([
+        ':product' => $product
+    ]);
+
+    $stockRow = $stockStmt->fetch(PDO::FETCH_ASSOC);
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRODUCT DOES NOT EXIST
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$stockRow) {
+
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+
+        json_response([
+            'success' => false,
+            'errors' => [
+                'product' => 'The selected product is not available.'
+            ],
+            'message' => 'The selected product is not available.'
+        ], 422);
+
+    }
+
+    $stock = (int) $stockRow['stock_quantity'];
+
+    $unitPrice = (float) $stockRow['price'];
+
+    /*
+    |--------------------------------------------------------------------------
+    | STOCK CHECK
+    |--------------------------------------------------------------------------
+    */
+
+    if ($stock < $quantity) {
+
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+
+        json_response([
+            'success' => false,
+            'errors' => [
+                'quantity' =>
+                    'Not enough stock available. Only ' .
+                    $stock .
+                    ' item(s) remain.'
+            ],
+            'message' =>
+                'Not enough stock available. Only ' .
+                $stock .
+                ' item(s) remain.'
+        ], 409);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL
+    |--------------------------------------------------------------------------
+    */
+
+    $totalPrice = $unitPrice * $quantity;
+
+    /*
+    |--------------------------------------------------------------------------
+    | DECREASE STOCK
+    |--------------------------------------------------------------------------
+    */
+
+    $newStock = $stock - $quantity;
+
+    $updateStock = $pdo->prepare(
+        'UPDATE merch_stock
+         SET stock_quantity = :stock
+         WHERE product = :product'
+    );
+
+    $updateStock->execute([
+        ':stock' => $newStock,
+        ':product' => $product
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | INSERT ORDER
+    |--------------------------------------------------------------------------
+    */
+
+    $orderStmt = $pdo->prepare(
+        'INSERT INTO merch_orders
+        (
+            customer_id,
+            product,
+            quantity,
+            unit_price,
+            location,
+            contact_number
+        )
+        VALUES
+        (
+            :customer_id,
+            :product,
+            :quantity,
+            :unit_price,
+            :location,
+            :contact_number
+        )'
+    );
+
+    $orderStmt->execute([
+        ':customer_id' => $userId,
+        ':product' => $product,
+        ':quantity' => $quantity,
+        ':unit_price' => $unitPrice,
+        ':location' => $location,
+        ':contact_number' => $contact,
     ]);
 
     $orderId = (int) $pdo->lastInsertId();
 
+    /*
+    |--------------------------------------------------------------------------
+    | COMMIT
+    |--------------------------------------------------------------------------
+    */
+
     $pdo->commit();
 
-    $stmt = $pdo->prepare('SELECT full_name, email FROM users WHERE id = :id');
-    $stmt->execute([':id' => $_SESSION['user_id']]);
-    $customer = $stmt->fetch();
+    /*
+    |--------------------------------------------------------------------------
+    | EMAIL
+    |--------------------------------------------------------------------------
+    |
+    | Email failure must NOT cancel the order.
+    |--------------------------------------------------------------------------
+    */
 
-    if ($customer) {
-        send_order_confirmation_email(
-            $customer['email'],
-            $customer['full_name'],
-            $productNames[$product],
+    if (!empty($user['email'])) {
+
+        try {
+
+            /*
+             * Use the database product value directly.
+             * This avoids another hard-coded product mismatch.
+             */
+
+           send_order_confirmation_email(
+            $user['email'],
+            $user['full_name'],
+            $product,
             $quantity,
+            $unitPrice,
             $location,
-            $contactNumber,
+            $contact,
             $orderId
-        );
+);
+
+        } catch (Throwable $mailError) {
+
+            error_log(
+                'Order confirmation email failed for order #' .
+                $orderId .
+                ': ' .
+                $mailError->getMessage()
+            );
+
+        }
     }
 
-    json_response(['success' => true, 'message' => "Order placed! Check your email for a confirmation."]);
-} catch (PDOException $e) {
-    $pdo->rollBack();
-    error_log('order.php insert failed: ' . $e->getMessage());
-    json_response(['success' => false, 'message' => 'Something went wrong. Please try again.'], 500);
+    /*
+    |--------------------------------------------------------------------------
+    | SUCCESS
+    |--------------------------------------------------------------------------
+    */
+
+    json_response([
+        'success' => true,
+        'message' => 'Order placed successfully!',
+        'order_id' => $orderId,
+        'total' => number_format(
+            $totalPrice,
+            2,
+            '.',
+            ''
+        )
+    ]);
+
+} catch (Throwable $e) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROLLBACK
+    |--------------------------------------------------------------------------
+    */
+
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
+    error_log(
+        'order.php failed: ' .
+        $e->getMessage()
+    );
+
+    json_response([
+        'success' => false,
+        'message' =>
+            'Unable to place your order right now. Please try again.'
+    ], 500);
 }
+

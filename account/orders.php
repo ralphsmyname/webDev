@@ -45,6 +45,8 @@ $productNames = ['bottle' => 'Water Bottle', 'bag' => 'Tote Bag', 'hoodie' => 'H
                 <tr>
                     <th>Product</th>
                     <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
                     <th>Status</th>
                     <th>Ordered</th>
                 </tr>
@@ -54,6 +56,8 @@ $productNames = ['bottle' => 'Water Bottle', 'bag' => 'Tote Bag', 'hoodie' => 'H
                     <tr>
                         <td><?= htmlspecialchars($productNames[$o['product']] ?? $o['product'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= (int) $o['quantity'] ?></td>
+                        <td><?= htmlspecialchars(format_price((float) $o['unit_price']), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars(format_price((float) $o['unit_price'] * (int) $o['quantity']), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars(ucfirst($o['status']), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($o['created_at'], ENT_QUOTES, 'UTF-8') ?></td>
                     </tr>
